@@ -9,47 +9,16 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
-    token_: '',
-    name_: '',
-    id_: null,
     nodeId: null,
     sessions: [],//聊天记录
     stomp: null,
   },
   mutations: {
-    login(state, data) {
-      this.state.token_ = data.token
-      sessionStorage.setItem('token', data.token);
-      this.state.id_ = data.id
-      sessionStorage.setItem('id', data.id);
-      this.state.name_ = data.name
-      sessionStorage.setItem('user', data.name);
-    },
-    logout(state) {
-      sessionStorage.clear();
-      this.state.token_ = ''
-      this.state.name_ = ''
-      this.state.id_ = ''
-    },
     getSession(state) {
       let msg = new Object()
-      msg.courseInstanceId = this.state.classId
-      msg.startId = null
-      msg.count = 15
-      msg.timestamp = null
       postRequest('/api/message/getMessages',msg).then(res=>{
         if(!res.code){
-          // console.log(res.data)
-          state.sessions = []
-          for(let i=res.data.count-1;i>=0;--i){
-            let obj = res.data.messages[i]
-            if(obj.userId == 17 || obj.userId == 41)
-              obj.avatar = 'https://cdn.jsdelivr.net/gh/Yveltals/Picgo/avatar/0.png'
-            else
-              obj.avatar = 'https://cdn.jsdelivr.net/gh/Yveltals/Picgo/avatar/'+(obj.userId%6+1)+'.png'
-            state.sessions.push(obj)
-            //Vue.set(state.sessions1, '讨论区', res);
-          }
+          console.log(res.data)
         }else{
           console.info(res.msg)
         }
@@ -57,7 +26,6 @@ const store = new Vuex.Store({
     },
   },
   actions: {
-    // 连接Stomp站点,实现连接服务端连接与消息订阅
     connect(context) {
       var headers = {'token': this.state.token_}
       context.state.stomp = Stomp.over(new SockJS('https://b2884t1064.oicp.vip/ems_course_session?token=' + this.state.token_));

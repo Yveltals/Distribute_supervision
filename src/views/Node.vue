@@ -1,6 +1,6 @@
 <template>
 <div id="node">
-    <el-card>
+    <el-card style="user-select:none">
       <Row>
         <Col span="2" style="padding-left: 10px;">
           <el-image style="width:75px;height:75px" :src="top_icon">

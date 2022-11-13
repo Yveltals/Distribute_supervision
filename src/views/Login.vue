@@ -7,11 +7,11 @@
         </div>
         <div class="px">
           <h1 class="text">The Best Emotion</h1>
-          <h2 style="color:#66696d;">分布式集群管理系统</h2>
+          <h2 style="color:#66696d;">分布式机群监管系统</h2>
           <el-form style="margin-top: 40px;" ref="loginForm" :rules="rules" :model="loginForm" label-width="60px">
             <el-form-item label="账号:" prop="username">
               <el-input style="width:300px" type="text" v-model="loginForm.username" auto-complete="off"
-                placeholder="请输入用户名"></el-input>
+                placeholder="请输入账号"></el-input>
             </el-form-item>
             <el-form-item label="密码:" prop="password">
               <el-input style="width:300px" type="password" v-model="loginForm.password" auto-complete="off"
@@ -37,37 +37,17 @@ export default {
         password: ""
       },
       rules: {
-        username:[{required:true,message:'请输入学/工号',trigger:'blur'}],
+        username:[{required:true,message:'请输入账号',trigger:'blur'}],
         password:[{required:true,message: '请输入密码',trigger:'blur'}],
       },
     }
   },
   methods: {
-    adminLogin() {
-      console.log(this.loginForm)
-      let data = { 'id': 0, 'name': '管理员', 'token': 'wqhsisdhoo' }
-      sessionStorage.setItem('admin', data.name)
-      this.$router.replace("/admins/info")
-      return
-
-      this.postRequest('/api/login', this.loginForm).then(res => {
-        if (!res.code) {
-          this.$message.success(res.msg);
-          this.$store.commit('login', res.data)
-          window.sessionStorage.setItem("admin", res.data.name);
-          let path = this.$route.query.redirect;
-          this.$router.replace((path == '/' || path == undefined) ? "/admins/demo" : path);
-        }
-        else {
-          console.info(res.msg)
-          this.$message.error("账号或密码错误！");
-        }
-      })
-    },
     submitLogin() {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
-          this.adminLogin()
+          this.$message.success("登录成功");
+          this.$router.replace("/admins/info")
         } else {
           this.$message.error("账号和密码不能为空！");
           return false;

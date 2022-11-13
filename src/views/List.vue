@@ -19,13 +19,13 @@
       </Form>
     </Modal>
 
-    <el-card>
+    <el-card style="user-select:none">
       <Row>
         <Col span="2" style="padding-left: 10px;">
           <el-image style="width:75px;height:75px" :src="top_icon">
           </el-image></Col>
         <Col span="22" style="padding-top:10px">
-          <h1>服务组件</h1>
+          <h1>服务节点</h1>
           <p>提供集群内部各服务组件的健康状况监控，可以查看当前集群的健康状态的运行时间，能够帮助用户监控集群的健康状况并及时定位问题</p>
         </Col>
       </Row>
@@ -46,7 +46,7 @@
           <Col span="1" style="text-align:center;line-height:36px;">
             <Icon style="cursor:pointer;color:grey;font-size:21px" type="md-refresh" />
           </Col>
-          <Col span="5"><Button class="set_button" @click="showForm" shape="circle">管理配置</Button></Col>
+          <!-- <Col span="5"><Button class="set_button" @click="showForm" shape="circle">管理配置</Button></Col> -->
         </Row>
       </div>
       <Divider style="margin: 0px;"/>
@@ -80,13 +80,8 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button
-              size="mini"
-              @click="handleEdit(scope.row.id)">编辑</el-button>
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.row.id)">删除</el-button>
+            <!-- <el-button size="mini">编辑</el-button> -->
+            <Button class="set_button" @click="handleEdit(scope.row.id)" shape="circle">管理配置</Button>
           </template>
         </el-table-column>
       </el-table>
@@ -103,6 +98,7 @@
       return {
         formVisable: false,
         formData: {
+          id: '',
           ip: '',
           heart: '',
           status: '',
@@ -189,11 +185,13 @@
         this.curPage = page
         this.showPage(6*(page-1))
       },
-      reset (name) {
+      reset(name) {
           this.$refs[name].resetFields();
       },
-      showForm(){
+      handleEdit(NodeId){
+        console.log(NodeId)
         this.formData = {}
+        this.formData.id = NodeId
         this.formVisable = true
       },
     }

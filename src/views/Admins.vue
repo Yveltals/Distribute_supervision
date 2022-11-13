@@ -110,7 +110,6 @@ export default {
 				type: 'warning'
 			}).then(() => {
         this.$message.success("退出登录");
-        this.$store.commit('logout')
         this.$router.push("/")
 			})
     },
@@ -133,6 +132,7 @@ html{
   font-weight: 500;
   line-height: 1.5;
   color: inherit;
+  user-select:none
 }
 .side-menu span{
   font-size: 17px;

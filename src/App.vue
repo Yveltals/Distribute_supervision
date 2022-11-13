@@ -12,8 +12,5 @@ html{
 body {
   height: 100%;
   width: 100%;
-  background-color: aliceblue;
-  background: url("./assets/bg.jpg") no-repeat;
-  background-size: cover;
 }
 </style>
