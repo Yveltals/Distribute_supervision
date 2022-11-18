@@ -12,6 +12,7 @@ import {postRequest} from "./utils/api";
 import {getRequest} from "./utils/api";
 import {putRequest} from "./utils/api";
 import {deleteRequest} from "./utils/api";
+import printJS from 'print-js'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI);

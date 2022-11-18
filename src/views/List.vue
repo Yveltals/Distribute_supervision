@@ -46,16 +46,18 @@
           <Col span="1" style="text-align:center;line-height:36px;">
             <Icon style="cursor:pointer;color:grey;font-size:21px" type="md-refresh" />
           </Col>
-          <!-- <Col span="5"><Button class="set_button" @click="showForm" shape="circle">管理配置</Button></Col> -->
+          <Col span="5"><Button class="set_button" @click="exportExcel" shape="circle">导出数据</Button></Col>
         </Row>
       </div>
       <Divider style="margin: 0px;"/>
       <el-table
         :data="curData" style="width:100%;user-select:none" v-loading="loading"
-        :default-sort = "{prop: 'date', order: 'descending'}">
+        :default-sort = "{prop: 'date', order: 'descending'}"
+        id="print"
+      >
         <el-table-column type="selection" width="55">
         </el-table-column>
-        <el-table-column label="机器" prop="name" sortable width="240">
+        <el-table-column label="机器" prop="name" sortable width="260">
           <template slot-scope="scope">
             <Row style="cursor:pointer;">
               <Col span="6"><el-image style="width:40px;height:40px" :src="list_icon"></el-image></Col>
@@ -63,25 +65,28 @@
             </Row>
           </template>
         </el-table-column>
-        <el-table-column label="状态" prop="status" sortable width="220">
+        <el-table-column label="状态" prop="status" sortable width="250">
           <template slot-scope="scope">
             <h3 style="color:rgb(85,85,85)"><Icon color="#00AA00" type="md-radio-button-on" /> 运行中</h3>
           </template>
         </el-table-column>
-        <el-table-column label="所属项目" prop="group" width="290">
+        <el-table-column label="所属项目" prop="group" width="320">
           <template slot-scope="scope">
             <h3>kubesphere-controller</h3>
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" prop="date" sortable width="220">
+        <el-table-column label="更新时间" prop="date" sortable width="250">
           <template slot-scope="scope">
             <h3><Icon type="md-time" /> &emsp;{{ scope.row.date }}</h3>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <!-- <el-button size="mini">编辑</el-button> -->
-            <Button class="set_button" @click="handleEdit(scope.row.id)" shape="circle">管理配置</Button>
+            <div @click="handleEdit(scope.row.id)" style="line-height:35px;text-align:center">
+              <!-- <Icon style="font-size:30px;float:left" type="ios-options" /> -->
+              <Icon style="cursor:pointer;font-size:30px;float:left" type="md-more" />
+            </div>
+            <!-- <Button class="set_button" @click="handleEdit(scope.row.id)" shape="circle">管理配置</Button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -128,6 +133,49 @@
       this.showPage(0)
     },
     methods: {
+      async exportPdf(){
+        let data = []
+        for (let i=0; i < this.tableData.length; i++) {
+            data.push({
+                "id": this.tableData[i].id,
+                "name": this.tableData[i].name,
+                "date": this.tableData[i].date,
+            })
+        }          
+        printJS({
+            printable: data,
+            properties: [
+                {
+                    field: 'id',
+                    displayName: '机器ID',
+                    columnSize: 1
+                },
+                {
+                    field: 'name',
+                    displayName: '名称',
+                    columnSize: 1
+                },
+                {
+                    field: 'date',
+                    displayName: '更新时间',
+                    columnSize: 1
+                },
+            ],
+            type: 'json',
+            header: '机器信息',
+            // 样式设置
+            gridStyle: 'border: 2px solid #3971A5;',
+            gridHeaderStyle: 'color: red;  border: 2px solid #3971A5;'
+        })
+      },
+      exportExcel() {
+          const {export_json_to_excel} = require('../utils/Export2Excel')
+          const tHeader = ['机器ID', '名称', '更新时间', ]
+          const filterVal = ['id', 'name', 'date', ]
+          const list = this.tableData
+          const data = list.map(v => filterVal.map(j => v[j]))
+          export_json_to_excel(tHeader, data, '机器信息')
+      },
       handle(nodeId){
         console.log(nodeId)
         this.$store.state.nodeId = nodeId
