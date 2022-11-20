@@ -6,11 +6,8 @@
         <FormItem label="IP地址" prop="ip">
             <Input v-model="formData.ip" placeholder="请输入IP地址"></Input>
         </FormItem>
-        <FormItem label="心跳时间" prop="heart">
-            <Input v-model="formData.heart" placeholder="请输入心跳时间"></Input>
-        </FormItem>
-        <FormItem label="状态同步时间" prop="status">
-            <Input v-model="formData.status" placeholder="请输入状态同步时间"></Input>
+        <FormItem label="状态同步间隔" prop="status">
+            <Input v-model="formData.interval" placeholder="请输入状态同步时间(s)"></Input>
         </FormItem>
         <FormItem>
             <Button type="primary" @click="submit('formData')">提交</Button>
@@ -103,10 +100,8 @@
       return {
         formVisable: false,
         formData: {
-          id: '',
           ip: '',
-          heart: '',
-          status: '',
+          interval: ''
         },
         formRule: {
           ip: [{ required: true, message: 'IP不能为空', trigger: 'blur' }],
@@ -196,10 +191,10 @@
         return
         this.$refs[name].validate((valid) => {
           if (valid) {
-            this.postRequest('/api/manage/addCourse',this.formData).then(res=>{
+            this.postRequest('/api/configure',this.formData).then(res=>{
               console.log(res)
               if(!res.code){ 
-                this.$Message.success('添加成功');
+                this.$Message.success('配置成功');
                 this.formVisable = false
                 this.getCourseList() 
               }
@@ -237,9 +232,8 @@
           this.$refs[name].resetFields();
       },
       handleEdit(NodeId){
-        console.log(NodeId)
+        // console.log(NodeId)
         this.formData = {}
-        this.formData.id = NodeId
         this.formVisable = true
       },
     }

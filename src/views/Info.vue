@@ -33,14 +33,14 @@
             <el-scrollbar style="height: 310px">
             <el-timeline style="padding:10px">
               <el-timeline-item
-                v-for="(activity, index) in activities"
+                v-for="(item, index) in message"
                 :key="index"
-                :icon="activity.icon"
-                :type="activity.type"
-                :color="activity.color"
-                :size="activity.size"
-                :timestamp="activity.timestamp">
-                <h3>{{activity.content}}</h3>
+                :icon="item.icon"
+                :type="item.type"
+                :color="item.color"
+                :size="item.size"
+                :timestamp="item.timestamp">
+                <h3>{{item.content}}</h3>
               </el-timeline-item>
             </el-timeline>
             </el-scrollbar>
@@ -89,72 +89,10 @@ export default {
   name: 'Info',
   data () {
     return {
-      treeData: {
-        name: 'root',
-        image_url: node_icon,
-        class: ["rootNode"],
-        children: [
-          {
-            name: 'children1',
-            image_url: node_icon,
-            children: [
-              {
-                name: 'grandchild',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild2',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild3',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild2',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild3',
-                image_url: node_icon
-              }
-            ]
-          },
-          {
-            name: 'children2',
-            image_url: node_icon,
-            children: [
-              {
-                name: 'grandchild',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild2',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild3',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild2',
-                image_url: node_icon
-              },
-              {
-                name: 'grandchild3',
-                image_url: node_icon
-              }
-            ]
-          },
-        ]
-      },
-
-      activities: [{
+      message: [{
         content: '支持使用图标',
         timestamp: '2018-04-12 20:46',
-        size: 'large',
-        type: 'primary',
-        icon: 'el-icon-more'
+        color: '#0bbd87'
       }, {
         content: '支持自定义颜色',
         timestamp: '2018-04-03 20:46',
@@ -162,56 +100,93 @@ export default {
       }, {
         content: '支持自定义尺寸',
         timestamp: '2018-04-03 20:46',
-        size: 'large'
       }, {
         content: '支持自定义尺寸',
         timestamp: '2018-04-03 20:46',
-        size: 'large'
       }, {
         content: '支持自定义尺寸',
         timestamp: '2018-04-03 20:46',
-        size: 'large'
+        color: '#0bbd87'
       }, {
         content: '支持自定义尺寸',
         timestamp: '2018-04-03 20:46',
-        size: 'large'
       }],
     }
+  },
+  created() {
+    this.getInfo()
+    this.getMessage()
+    this.getTreeDiagram()
   },
   mounted () {
     this.initTreeChart()
   },
   methods: {
+    getMessage(){
+      return
+      this.getRequest('/api/getMessage?limit='+10).then(res=>{
+        console.log(res)
+        if(!res.code){ 
+          this.message = []
+          for(let i=0;i<res.data.length;++i){
+            let tmp;
+            tmp.content = res.data[i].name
+            tmp.timestamp = res.data[i].timestamp
+            tmp.size = 'large'
+            if(res.data[i].online){
+              tmp.content += '上线'
+              tmp.color = '#0bbd87'
+            }
+            else{
+              tmp.content += '下线'
+            }
+            this.message.push(tmp)
+          }
+          this.$Message.success('配置成功');
+          this.formVisable = false
+        }
+        else this.$Message.error(res.msg);
+      }) 
+    },
+    getTreeDiagram(){
+      this.getRequest('/api/getTreeDiagram').then(res=>{
+        console.log(res)
+        if(!res.code){ 
+          this.message = []
+          this.$Message.success('配置成功');
+          this.formVisable = false
+        }
+        else this.$Message.error(res.msg);
+      }) 
+    },
     initTreeChart(){
       const data = {
-        name: 'flare',
+        name: 'root',
         children: [
           {
-            name: 'display',
+            name: 'websocket1',
             children: [
-              { name: 'DirtySprite', value: 8833 },
-              { name: 'LineSprite', value: 1732 },
-              { name: 'RectSprite', value: 3623 }
+              { name: 'node1', value: 8833 },
+              { name: 'node2', value: 1732 },
+              { name: 'node3', value: 3623 }
             ]
           },
           {
-            name: 'scale',
+            name: 'websocket2',
             children: [
-              { name: 'IScaleMap', value: 2105 },
-              { name: 'LinearScale', value: 1316 },
-              { name: 'LogScale', value: 3151 },
-              { name: 'OrdinalScale', value: 3770 },
-              { name: 'QuantileScale', value: 2435 },
-              { name: 'QuantitativeScale', value: 4839 },
-              { name: 'RootScale', value: 1756 },
-              { name: 'Scale', value: 4268 },
-              { name: 'QuantitativeScale', value: 4839 },
-              { name: 'RootScale', value: 1756 },
-              { name: 'Scale', value: 4268 },
+              { name: 'node4', value: 2105 },
+              { name: 'node5', value: 1316 },
+              { name: 'node6', value: 3151 },
+              { name: 'node7', value: 3770 },
+              { name: 'node8', value: 2435 },
+              { name: 'node9', value: 4839 },
+              { name: 'node10', value: 1756 },
+              { name: 'node11', value: 4268 },
+              { name: 'node12', value: 4839 },
             ]
           }
         ]
-      };
+      }
       let option = {
         tooltip: {
           trigger: 'item',
