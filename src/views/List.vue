@@ -54,36 +54,40 @@
       >
         <el-table-column type="selection" width="55">
         </el-table-column>
-        <el-table-column label="机器" prop="name" sortable width="260">
+        <el-table-column label="机器" prop="name" sortable width="230">
           <template slot-scope="scope">
             <Row style="cursor:pointer;">
               <Col span="6"><el-image style="width:40px;height:40px" :src="list_icon"></el-image></Col>
-              <Col style=";text-align:center;line-height:40px"><h3 @click="handle(scope.row.id)">{{ scope.row.name }}</h3></Col>
+              <Col style=";text-align:center;line-height:40px"><h3 @click="handle(scope.row)">{{ scope.row.name }}</h3></Col>
             </Row>
           </template>
         </el-table-column>
-        <el-table-column label="状态" prop="status" sortable width="250">
+        <el-table-column label="状态" sortable width="170">
           <template slot-scope="scope">
             <h3 style="color:rgb(85,85,85)"><Icon color="#00AA00" type="md-radio-button-on" /> 运行中</h3>
           </template>
         </el-table-column>
-        <el-table-column label="所属项目" prop="group" width="320">
+        <el-table-column label="类型" prop="type" width="170">
           <template slot-scope="scope">
-            <h3>kubesphere-controller</h3>
+            <h3 v-if="scope.row.type==1">服务器</h3>
+            <h3 v-else>客户机</h3>
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" prop="date" sortable width="250">
+        <el-table-column label="IP" prop="ip" sortable width="200">
           <template slot-scope="scope">
-            <h3><Icon type="md-time" /> &emsp;{{ scope.row.date }}</h3>
+            <h3>{{ scope.row.ip }}</h3>
+          </template>
+        </el-table-column>
+        <el-table-column label="报告间隔" prop="interval" sortable width="200">
+          <template slot-scope="scope">
+            <h3><Icon type="md-time" /> &emsp;{{ scope.row.interval }}</h3>
           </template>
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <div @click="handleEdit(scope.row.id)" style="line-height:35px;text-align:center">
-              <!-- <Icon style="font-size:30px;float:left" type="ios-options" /> -->
+            <div @click="handleEdit(scope.row)" style="line-height:35px;text-align:center">
               <Icon style="cursor:pointer;font-size:30px;float:left" type="md-more" />
             </div>
-            <!-- <Button class="set_button" @click="handleEdit(scope.row.id)" shape="circle">管理配置</Button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -100,22 +104,18 @@
       return {
         formVisable: false,
         formData: {
+          id: '',
           ip: '',
           interval: ''
         },
         formRule: {
           ip: [{ required: true, message: 'IP不能为空', trigger: 'blur' }],
-          heart: [{ required: true, message: '请设置心跳时间', trigger: 'blur' }],
-          status: [{ required: true, message: '请设置状态同步时间', trigger: 'blur' }]
+          interval: [{ required: true, message: '请设置客户机报告间隔时间', trigger: 'blur' }]
         },
         select: '运行中', //下拉选项
         total: 10,
         curData: [],
-        tableData: [
-          {id:0,date:'2016-05-02',name:'机器1',}, {id:1,date:'2016-05-04',name:'机器2',}, {id:2,date:'2016-05-01',name:'机器3',}, {id:3,date:'2016-05-03',name:'机器4',},
-          {id:4,date:'2016-05-02',name:'机器1',}, {id:5,date:'2016-05-04',name:'机器2',}, {id:6,date:'2016-05-01',name:'机器3',},
-          {id:8,date:'2016-05-02',name:'机器1',}, {id:9,date:'2016-05-04',name:'机器2',}, {id:10,date:'2016-05-01',name:'机器3',},
-        ],
+        tableData: [],
         top_icon: require('../assets/top_icon.png'),
         list_icon: require('../assets/list_icon.png'),
         optionList: [{value:'运行中',label:'运行中'},{value:'已停止',label:'已停止'}],
@@ -125,6 +125,7 @@
       }
     },
     created () {
+      this.tableData = this.$store.state.nodesList
       this.showPage(0)
     },
     methods: {
@@ -165,15 +166,19 @@
       },
       exportExcel() {
           const {export_json_to_excel} = require('../utils/Export2Excel')
-          const tHeader = ['机器ID', '名称', '更新时间', ]
-          const filterVal = ['id', 'name', 'date', ]
+          const tHeader = ['机器ID', '名称', '类型','IP','报告间隔', ]
+          const filterVal = ['id', 'name', 'type','ip','interval', ]
           const list = this.tableData
           const data = list.map(v => filterVal.map(j => v[j]))
           export_json_to_excel(tHeader, data, '机器信息')
       },
-      handle(nodeId){
-        console.log(nodeId)
-        this.$store.state.nodeId = nodeId
+      handle(node){
+        if(node.type==1){
+          let a = {'1':{name:'name1'},'2':{name:'name2'}}
+          console.log(a['1'].name)
+          return
+        }
+        this.$store.state.nodeId = node.id
         this.$router.replace("/admins/node");
       },
       getCourseList(){
@@ -187,8 +192,6 @@
         })
       },
       submit (name) {
-        console.log(this.formData)
-        return
         this.$refs[name].validate((valid) => {
           if (valid) {
             this.postRequest('/api/configure',this.formData).then(res=>{
@@ -196,13 +199,29 @@
               if(!res.code){ 
                 this.$Message.success('配置成功');
                 this.formVisable = false
-                this.getCourseList() 
+                this.getNodeInfo() 
               }
               else this.$Message.error(res.msg);
             }) 
           } else {
               this.$Message.error('请填写必要信息');
           }
+        })
+      },
+      getNodeInfo(){ //机器信息列表（表格）
+        let param = {'id': this.$store.state.nodesId}
+        this.postRequest('/api/getNodeInfo',param).then(res=>{
+          let tmp = []
+          if(!res.code){
+            for(let key in res.data){
+              tmp.push(res.data[key])
+            }
+            this.$store.state.nodesList = tmp
+            this.tableData = tmp
+            this.showPage(0)
+            console.log(this.$store.state.nodesList)
+          }
+          else this.$Message.error(res.msg);
         })
       },
       search(){
@@ -219,7 +238,7 @@
       },
       showPage(page){
         this.curData = []
-        for(let i=page;i<this.total && i<page+6; i++){
+        for(let i=page;i<this.tableData.length && i<page+6; i++){
           this.curData.push(this.tableData[i])
         }
         this.loading = false
@@ -231,9 +250,10 @@
       reset(name) {
           this.$refs[name].resetFields();
       },
-      handleEdit(NodeId){
-        // console.log(NodeId)
-        this.formData = {}
+      handleEdit(node){
+        this.formData.id = node.id
+        this.formData.ip = node.ip
+        this.formData.interval = node.interval
         this.formVisable = true
       },
     }

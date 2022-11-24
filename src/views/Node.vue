@@ -91,24 +91,47 @@ export default {
     name: 'Node',
     data () {
     return {
-        top_icon: require('../assets/node_icon.png'),
+      timestamp: null,
+      cpu:{ percent:null,used:null,total:null },
+      ram:{ percent:null,used:null,total:null },
+      storage:{ percent:null,used:null,total:null },
+      top_icon: require('../assets/node_icon.png'),
     }
     },
     created () {
         
     },
     mounted() {
-        this.initPieChart1()
-        this.initPieChart2()
-        this.initPieChart3()
-        this.initPieChart4()
-        this.initRadarChart() 
+      this.getStatus()
     },
     methods: {
         backToList(){
             this.$router.replace("/admins/list")
         },
-
+        getStatus(){
+          let param = {'id': [this.$store.state.nodeId]}
+          this.postRequest('/api/getNodeList',param).then(res=>{
+            console.log(res)
+            if(!res.code){
+              for(let key in res.data){
+                this.timestamp = res.data[key].timestamp
+                this.cpu = res.data[key].cpu
+                this.ram = res.data[key].ram
+                this.storage = res.data[key].storage
+                break
+              }
+              this.init()
+            }
+            else this.$Message.error(res.msg);
+          })
+        },
+        init(){
+          this.initPieChart1()
+          this.initPieChart2()
+          this.initPieChart3()
+          this.initPieChart4()
+          this.initRadarChart() 
+        },
         initRadarChart() {
           const option = {
             tooltip: {
@@ -120,9 +143,9 @@ export default {
             radar: {
               shape: 'circle',
               indicator: [
-                { name: 'CPU', max: 6500 },
-                { name: '本地存储', max: 16000 },
-                { name: '内存', max: 30000 },
+                { name: 'CPU', max: this.cpu.total },
+                { name: '本地存储', max: this.storage.total },
+                { name: '内存', max: this.ram.total },
                 { name: '容器组', max: 38000 },
               ],
               splitArea: {
@@ -147,7 +170,7 @@ export default {
                 type: 'radar',
                 data: [
                   {
-                    value: [4200, 3000, 20000, 35000, 50000, 18000],
+                    value: [this.cpu.used, this.storage.used, this.ram.used, 25000,],
                     name: 'Allocated Budget',
                     symbolSize: 2,
                     areaStyle: {
@@ -170,13 +193,6 @@ export default {
           });
         },
         initPieChart1() {
-          // let chartData = [];
-          // for (let key in this.emotionsData) {
-          //   var obj = {};
-          //   obj.name = scoreEmoMap[key];
-          //   obj.value = this.emotionsData[key];
-          //   chartData.push(obj);
-          // }
           const option = {
             tooltip: {
               show: false,
@@ -192,8 +208,8 @@ export default {
                 },
                 radius: ['40%', '70%'],
                 data: [
-                  { value: 30, name: 'CPU已使用' },
-                  { value: 70, name: 'CPU未使用' },
+                  { value: this.cpu.percent, name: 'CPU已使用' },
+                  { value: 1-this.cpu.percent, name: 'CPU未使用' },
                 ],
                 itemStyle: {
                   normal: {
@@ -235,8 +251,8 @@ export default {
                 },
                 radius: ['40%', '70%'],
                 data: [
-                  { value: 30, name: 'CPU已使用' },
-                  { value: 70, name: 'CPU未使用' },
+                  { value: this.ram.percent, name: 'RAM已使用' },
+                  { value: 1-this.ram.percent, name: 'RAM未使用' },
                 ],
                 itemStyle: {
                   normal: {
@@ -282,8 +298,8 @@ export default {
                 },
                 radius: ['40%', '70%'],
                 data: [
-                  { value: 30, name: 'CPU已使用' },
-                  { value: 70, name: 'CPU未使用' },
+                  { value: this.storage.percent, name: '存储空间已使用' },
+                  { value: 1-this.storage.percent, name: '存储空间未使用' },
                 ],
                 itemStyle: {
                   normal: {

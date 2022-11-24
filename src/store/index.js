@@ -10,8 +10,12 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: sessionStorage.getItem('state') ? JSON.parse(sessionStorage.getItem('state')) : {
     nodeId: null,
-    sessions: [],//聊天记录
+    nodesId: [],
+    nodesInfo: null,
+    nodesList: [],
+    message: [],
     stomp: null,
+    time: null,
   },
   mutations: {
     getSession(state) {
@@ -27,17 +31,11 @@ const store = new Vuex.Store({
   },
   actions: {
     connect(context) {
-      var headers = {'token': this.state.token_}
-      context.state.stomp = Stomp.over(new SockJS('https://b2884t1064.oicp.vip/ems_course_session?token=' + this.state.token_));
+      context.state.stomp = Stomp.over(new SockJS('https://b2884t1064.oicp.vip/dmos_app'));
       context.state.stomp.connect({}, success => {
-        // 订阅课程实例
-        context.state.stomp.subscribe("/api/session/" + this.state.classId, msg => {
+        context.state.stomp.subscribe("/api/dmos/", msg => {
           console.log(msg)
-          context.commit('getSession') //获取聊天记录
-        },headers)
-        // context.state.stomp.subscribe("/user/" + this.state.id_ + "/receive", msg => {
-          // console.log(msg)
-        // },headers)
+        })
       }, error => {
         Notification.info({
           title: '系统消息',

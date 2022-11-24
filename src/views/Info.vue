@@ -31,16 +31,15 @@
           </Row>
           <div class="border" style="height:320px">
             <el-scrollbar style="height: 310px">
-            <el-timeline style="padding:10px">
+            <el-timeline v-if="$store.state.message" style="padding:10px">
               <el-timeline-item
-                v-for="(item, index) in message"
-                :key="index"
-                :icon="item.icon"
-                :type="item.type"
-                :color="item.color"
-                :size="item.size"
-                :timestamp="item.timestamp">
+                v-for="(item,index) in message" :key="index" :color="item.color" :timestamp="item.timestamp">
                 <h3>{{item.content}}</h3>
+              </el-timeline-item>
+            </el-timeline>
+            <el-timeline v-else style="padding:10px">
+              <el-timeline-item :timestamp="$store.state.time">
+                <h3>暂无状态变更通知</h3>
               </el-timeline-item>
             </el-timeline>
             </el-scrollbar>
@@ -58,7 +57,7 @@
             <Col span="4">
               <el-image class="image-small" :src="require('../assets/time.png')"></el-image></Col>
             <Col >
-              <h3>2022-11-12 15:32:57</h3>
+              <h3>{{$store.state.time}}</h3>
               <p style="color:grey">统计截止时间</p>
             </Col>
           </Row>
@@ -66,7 +65,7 @@
             <Col span="4">
               <el-image class="image-small" :src="require('../assets/node.png')"></el-image></Col>
             <Col span="6">
-              <h3>13</h3>
+              <h3>{{$store.state.nodesId.length}}</h3>
               <p style="color:grey">机器数量</p>
             </Col>
             <Col span="4">
@@ -111,19 +110,17 @@ export default {
         content: '支持自定义尺寸',
         timestamp: '2018-04-03 20:46',
       }],
+      message_null: [{
+        content: '暂无状态变更通知',
+        timestamp: '2018-04-12 20:46',
+      }],
     }
   },
-  created() {
-    this.getInfo()
-    this.getMessage()
-    this.getTreeDiagram()
-  },
   mounted () {
-    this.initTreeChart()
+    setTimeout(() => { this.initTreeChart() }, 500);
   },
   methods: {
     getMessage(){
-      return
       this.getRequest('/api/getMessage?limit='+10).then(res=>{
         console.log(res)
         if(!res.code){ 
@@ -148,17 +145,6 @@ export default {
         else this.$Message.error(res.msg);
       }) 
     },
-    getTreeDiagram(){
-      this.getRequest('/api/getTreeDiagram').then(res=>{
-        console.log(res)
-        if(!res.code){ 
-          this.message = []
-          this.$Message.success('配置成功');
-          this.formVisable = false
-        }
-        else this.$Message.error(res.msg);
-      }) 
-    },
     initTreeChart(){
       const data = {
         name: 'root',
@@ -166,23 +152,13 @@ export default {
           {
             name: 'websocket1',
             children: [
-              { name: 'node1', value: 8833 },
-              { name: 'node2', value: 1732 },
-              { name: 'node3', value: 3623 }
+              { name: 'node1',},
             ]
           },
           {
             name: 'websocket2',
             children: [
-              { name: 'node4', value: 2105 },
-              { name: 'node5', value: 1316 },
-              { name: 'node6', value: 3151 },
-              { name: 'node7', value: 3770 },
-              { name: 'node8', value: 2435 },
-              { name: 'node9', value: 4839 },
-              { name: 'node10', value: 1756 },
-              { name: 'node11', value: 4268 },
-              { name: 'node12', value: 4839 },
+              { name: 'node4',},
             ]
           }
         ]
@@ -197,7 +173,7 @@ export default {
             type: 'tree',
             id: 0,
             name: 'tree1',
-            data: [data],
+            data: [this.$store.state.tree],
             top: '0%',
             left: '10%',
             bottom: '40px',

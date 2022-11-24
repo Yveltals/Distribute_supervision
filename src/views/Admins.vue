@@ -60,7 +60,7 @@
 </template>
 
 <script>
-
+import Vue from 'vue'
 export default {
   name: 'Admins',
   data() {
@@ -78,6 +78,8 @@ export default {
 		window.addEventListener("beforeunload",()=>{
 			sessionStorage.setItem("state",JSON.stringify(this.$store.state))
 		})
+    this.query()
+    this.$store.dispatch("connect");
   },
   mounted() {
     this.main = document.querySelector('.sec-right')
@@ -93,6 +95,62 @@ export default {
     },
   },
   methods: {
+    query(){ //定时刷新机器组织关系
+      this.getRequest('/api/getTreeDiagram').then(res => {
+          if(!res.code){
+            this.$store.state.tree = res.data.tree
+            let nodes = []
+            let tmp = res.data.tree.children
+            for(let i=0;i<tmp.length;++i){
+              nodes.push(tmp[i].id)
+              for(let j=0;j<tmp[i].children.length;++j){
+                nodes.push(tmp[i].children[j].id)
+              }
+            }
+            this.$store.state.time = this.dateFormat("YYYY-mm-dd HH:MM:SS",new Date())
+            this.$store.state.nodesId = nodes
+            console.log(this.$store.state.nodesId)
+            this.$Message.success('刷新成功');
+            this.formVisable = false
+            this.getNodeInfo()
+          }
+          else this.$Message.error(res.msg);
+          setTimeout(() => {
+              this.query();
+          },20000)
+      })
+    },
+    getNodeInfo(){ //机器信息列表（表格）
+      let param = {'id': this.$store.state.nodesId}
+      this.postRequest('/api/getNodeInfo',param).then(res=>{
+        // console.log(res.data)
+        let tmp = []
+        if(!res.code){
+          this.$store.state.nodesInfo = res.data  //更新kv
+          for(let key in res.data){
+            tmp.push(res.data[key])
+          }
+          this.$store.state.nodesList = tmp
+          console.log(this.$store.state.nodesList)
+          this.updateDiagram()
+        }
+        else this.$Message.error(res.msg);
+      })
+    },
+    updateDiagram(){ //填充树状关系name字段
+      Vue.set(this.$store.state.tree, 'name', 'Root');
+      for(let i=0;i<this.$store.state.tree.children.length;++i){
+        let id = this.$store.state.tree.children[i].id
+        Vue.set(this.$store.state.tree.children[i], 'name', 
+          this.$store.state.nodesInfo[id].name);
+        for(let j=0;j<this.$store.state.tree.children[i].children.length;++j){
+          let id_ = this.$store.state.tree.children[i].children[j].id
+          Vue.set(this.$store.state.tree.children[i].children[j],'name',
+            this.$store.state.nodesInfo[id_].name);
+        }
+      }
+      // console.info(this.$store.state.tree)
+    },
     // 选择菜单回调函数
     selectMenuCallback(name) {
       if(name=='1-1') 
@@ -112,6 +170,24 @@ export default {
         this.$message.success("退出登录");
         this.$router.push("/")
 			})
+    },
+    dateFormat(fmt, date) {
+      let ret;
+      const opt = {
+      "Y+": date.getFullYear().toString(), // 年
+      "m+": (date.getMonth() + 1).toString(), // 月
+      "d+": date.getDate().toString(), // 日
+      "H+": date.getHours().toString(), // 时
+      "M+": date.getMinutes().toString(), // 分
+      "S+": date.getSeconds().toString() // 秒
+      };
+      for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+          fmt = fmt.replace(ret[1],(ret[1].length==1)?(opt[k]):(opt[k].padStart(ret[1].length,"0")))
+        };
+      };
+      return fmt;
     },
   },
 }
