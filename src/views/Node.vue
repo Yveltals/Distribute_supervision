@@ -22,30 +22,30 @@
             <Row class="stride">
               <Col span="4"><div class="echart" id="pieChart1" style="width:100px;height:100px"></div></Col>
               <Col span="5" class="col">
-                <h3>4%</h3>
+                <h3>{{(100*cpu.percent).toFixed(0)}} %</h3>
                 <h3 style="color:rgb(170, 170, 170)">CPU</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>0.52 core</h3>
+                <h3>{{cpu.used.toFixed(2)}} core</h3>
                 <h3 style="color:rgb(170, 170, 170)">已使用</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>14 core</h3>
+                <h3>{{cpu.total}} core</h3>
                 <h3 style="color:rgb(170, 170, 170)">总计</h3>
               </Col>
             </Row>
             <Row class="stride">
               <Col span="4"><div class="echart" id="pieChart2" style="width:100px;height:100px"></div></Col>
               <Col span="5" class="col">
-                <h3>12%</h3>
+                <h3>{{(100*ram.percent).toFixed(0)}}%</h3>
                 <h3 style="color:rgb(170, 170, 170)">内存</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>2.72 Gi</h3>
+                <h3>{{ram.used.toFixed(2)}} Gi</h3>
                 <h3 style="color:rgb(170, 170, 170)">已使用</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>22.94 Gi</h3>
+                <h3>{{ram.total.toFixed(2)}} Gi</h3>
                 <h3 style="color:rgb(170, 170, 170)">总计</h3>
               </Col>
             </Row>   
@@ -67,15 +67,15 @@
             <Row class="stride">
               <Col span="4"><div class="echart" id="pieChart4" style="width:100px;height:100px"></div></Col>
               <Col span="5" class="col">
-                <h3>21%</h3>
+                <h3>{{(100*storage.percent).toFixed(0)}}%</h3>
                 <h3 style="color:rgb(170, 170, 170)">本地存储</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>9.11 GB</h3>
+                <h3>{{storage.used.toFixed(2)}} GB</h3>
                 <h3 style="color:rgb(170, 170, 170)">已使用</h3>
               </Col>
               <Col span="5" class="col">
-                <h3>42.93 GB</h3>
+                <h3>{{storage.total.toFixed(2)}} GB</h3>
                 <h3 style="color:rgb(170, 170, 170)">总计</h3>
               </Col>
             </Row>         
@@ -92,9 +92,9 @@ export default {
     data () {
     return {
       timestamp: null,
-      cpu:{ percent:null,used:null,total:null },
-      ram:{ percent:null,used:null,total:null },
-      storage:{ percent:null,used:null,total:null },
+      cpu:{ percent:0,used:0,total:0 },
+      ram:{ percent:0,used:0,total:0 },
+      storage:{ percent:0,used:0,total:0 },
       top_icon: require('../assets/node_icon.png'),
     }
     },
@@ -126,11 +126,11 @@ export default {
           })
         },
         init(){
+          this.initRadarChart() 
           this.initPieChart1()
           this.initPieChart2()
-          this.initPieChart3()
+          // this.initPieChart3()
           this.initPieChart4()
-          this.initRadarChart() 
         },
         initRadarChart() {
           const option = {

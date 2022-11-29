@@ -31,9 +31,9 @@
           </Row>
           <div class="border" style="height:320px">
             <el-scrollbar style="height: 310px">
-            <el-timeline v-if="$store.state.message" style="padding:10px">
+            <el-timeline v-if="$store.state.message.length>0" style="padding:10px">
               <el-timeline-item
-                v-for="(item,index) in message" :key="index" :color="item.color" :timestamp="item.timestamp">
+                v-for="(item,index) in $store.state.message" :key="index" :color="item.color" :timestamp="item.timestamp">
                 <h3>{{item.content}}</h3>
               </el-timeline-item>
             </el-timeline>
@@ -88,28 +88,6 @@ export default {
   name: 'Info',
   data () {
     return {
-      message: [{
-        content: '支持使用图标',
-        timestamp: '2018-04-12 20:46',
-        color: '#0bbd87'
-      }, {
-        content: '支持自定义颜色',
-        timestamp: '2018-04-03 20:46',
-        color: '#0bbd87'
-      }, {
-        content: '支持自定义尺寸',
-        timestamp: '2018-04-03 20:46',
-      }, {
-        content: '支持自定义尺寸',
-        timestamp: '2018-04-03 20:46',
-      }, {
-        content: '支持自定义尺寸',
-        timestamp: '2018-04-03 20:46',
-        color: '#0bbd87'
-      }, {
-        content: '支持自定义尺寸',
-        timestamp: '2018-04-03 20:46',
-      }],
       message_null: [{
         content: '暂无状态变更通知',
         timestamp: '2018-04-12 20:46',

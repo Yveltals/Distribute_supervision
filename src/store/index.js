@@ -33,8 +33,14 @@ const store = new Vuex.Store({
     connect(context) {
       context.state.stomp = Stomp.over(new SockJS('https://b2884t1064.oicp.vip/dmos_app'));
       context.state.stomp.connect({}, success => {
-        context.state.stomp.subscribe("/api/dmos/", msg => {
+        context.state.stomp.subscribe("/api/dmos", msg => {
           console.log(msg)
+
+          message.push({
+            content: '支持使用图标',
+            timestamp: '2018-04-12 20:46',
+            color: '#0bbd87'
+          })
         })
       }, error => {
         Notification.info({

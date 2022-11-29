@@ -72,6 +72,7 @@ export default {
     }
   },
   created(){
+    this.$store.state.message = []
 		if (sessionStorage.getItem("state") ) {
 			this.$store.replaceState(Object.assign({}, this.$store.state,JSON.parse(sessionStorage.getItem("store"))))
 		}
