@@ -48,22 +48,7 @@
                 <h3>{{ram.total.toFixed(2)}} Gi</h3>
                 <h3 style="color:rgb(170, 170, 170)">总计</h3>
               </Col>
-            </Row>   
-            <Row class="stride">
-              <Col span="4"><div class="echart" id="pieChart3" style="width:100px;height:100px"></div></Col>
-              <Col span="5" class="col">
-                <h3>26%</h3>
-                <h3 style="color:rgb(170, 170, 170)">容器组</h3>
-              </Col>
-              <Col span="5" class="col">
-                <h3>29</h3>
-                <h3 style="color:rgb(170, 170, 170)">已使用</h3>
-              </Col>
-              <Col span="5" class="col">
-                <h3>110</h3>
-                <h3 style="color:rgb(170, 170, 170)">总计</h3>
-              </Col>
-            </Row>   
+            </Row>    
             <Row class="stride">
               <Col span="4"><div class="echart" id="pieChart4" style="width:100px;height:100px"></div></Col>
               <Col span="5" class="col">
@@ -78,7 +63,22 @@
                 <h3>{{storage.total.toFixed(2)}} GB</h3>
                 <h3 style="color:rgb(170, 170, 170)">总计</h3>
               </Col>
-            </Row>         
+            </Row>      
+            <Row class="stride">
+              <Col span="4"><div class="echart" id="pieChart3" style="width:100px;height:100px"></div></Col>
+              <Col span="5" class="col">
+                <h3>{{(100*swap.percent).toFixed(0)}}%</h3>
+                <h3 style="color:rgb(170, 170, 170)">交换内存</h3>
+              </Col>
+              <Col span="5" class="col">
+                <h3>{{swap.used.toFixed(2)}} Gi</h3>
+                <h3 style="color:rgb(170, 170, 170)">已使用</h3>
+              </Col>
+              <Col span="5" class="col">
+                <h3>{{swap.total.toFixed(2)}} Gi</h3>
+                <h3 style="color:rgb(170, 170, 170)">总计</h3>
+              </Col>
+            </Row>     
           </Col>
         </Row>
         <Button @click="backToList" class="back_button">返回</Button>  
@@ -93,6 +93,7 @@ export default {
     return {
       timestamp: null,
       cpu:{ percent:0,used:0,total:0 },
+      swap:{ percent:0,used:0,total:0 },
       ram:{ percent:0,used:0,total:0 },
       storage:{ percent:0,used:0,total:0 },
       top_icon: require('../assets/node_icon.png'),
@@ -129,7 +130,7 @@ export default {
           this.initRadarChart() 
           this.initPieChart1()
           this.initPieChart2()
-          // this.initPieChart3()
+          this.initPieChart3()
           this.initPieChart4()
         },
         initRadarChart() {
@@ -298,8 +299,8 @@ export default {
                 },
                 radius: ['40%', '70%'],
                 data: [
-                  { value: this.storage.percent, name: '存储空间已使用' },
-                  { value: 1-this.storage.percent, name: '存储空间未使用' },
+                  { value: this.swap.percent, name: '交换空间已使用' },
+                  { value: 1-this.swap.percent, name: '交换空间未使用' },
                 ],
                 itemStyle: {
                   normal: {

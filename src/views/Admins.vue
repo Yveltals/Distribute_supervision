@@ -61,6 +61,7 @@
 
 <script>
 import Vue from 'vue'
+import date from '../utils/date'
 export default {
   name: 'Admins',
   data() {
@@ -108,9 +109,9 @@ export default {
                 nodes.push(tmp[i].children[j].id)
               }
             }
-            this.$store.state.time = this.dateFormat("YYYY-mm-dd HH:MM:SS",new Date())
+            this.$store.state.time = date.dateFormat("YYYY-mm-dd HH:MM:SS",new Date())
             this.$store.state.nodesId = nodes
-            console.log(this.$store.state.nodesId)
+            // console.log(this.$store.state.nodesId)
             this.$Message.success('刷新成功');
             this.formVisable = false
             this.getNodeInfo()
@@ -132,7 +133,7 @@ export default {
             tmp.push(res.data[key])
           }
           this.$store.state.nodesList = tmp
-          console.log(this.$store.state.nodesList)
+          // console.log(this.$store.state.nodesList)
           this.updateDiagram()
         }
         else this.$Message.error(res.msg);
@@ -171,24 +172,6 @@ export default {
         this.$message.success("退出登录");
         this.$router.push("/")
 			})
-    },
-    dateFormat(fmt, date) {
-      let ret;
-      const opt = {
-      "Y+": date.getFullYear().toString(), // 年
-      "m+": (date.getMonth() + 1).toString(), // 月
-      "d+": date.getDate().toString(), // 日
-      "H+": date.getHours().toString(), // 时
-      "M+": date.getMinutes().toString(), // 分
-      "S+": date.getSeconds().toString() // 秒
-      };
-      for (let k in opt) {
-        ret = new RegExp("(" + k + ")").exec(fmt);
-        if (ret) {
-          fmt = fmt.replace(ret[1],(ret[1].length==1)?(opt[k]):(opt[k].padStart(ret[1].length,"0")))
-        };
-      };
-      return fmt;
     },
   },
 }

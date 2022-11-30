@@ -4,6 +4,7 @@ import SockJS from '../utils/sockjs'
 import '../utils/stomp'
 import { Notification } from 'element-ui';
 import { postRequest} from "../utils/api";
+import date from '../utils/date'
 
 Vue.use(Vuex)
 
@@ -18,16 +19,7 @@ const store = new Vuex.Store({
     time: null,
   },
   mutations: {
-    getSession(state) {
-      let msg = new Object()
-      postRequest('/api/message/getMessages',msg).then(res=>{
-        if(!res.code){
-          console.log(res.data)
-        }else{
-          console.info(res.msg)
-        }
-      })
-    },
+
   },
   actions: {
     connect(context) {
@@ -35,12 +27,37 @@ const store = new Vuex.Store({
       context.state.stomp.connect({}, success => {
         context.state.stomp.subscribe("/api/dmos", msg => {
           console.log(msg)
-
-          message.push({
-            content: '支持使用图标',
-            timestamp: '2018-04-12 20:46',
-            color: '#0bbd87'
-          })
+          let tmp = msg.body.data
+          let on = msg.body.data.online
+          let off = msg.body.data.offline
+          let time = date.dateFormat("YYYY-mm-dd HH:MM:SS",new Date())
+          for(let i=0;i<off.length;++i){
+            context.state.message.push({
+              content: context.state.nodesList[off[i]].name+' 下线',
+              timestamp: time,
+            })
+          }
+          if(on.length>0){
+            let param = {'id': on}
+            this.postRequest('/api/getNodeInfo',param).then(res=>{
+              // console.log(res.data)
+              let tmp = []
+              if(!res.code){
+                this.$store.state.nodesInfo = res.data  //更新kv
+                for(let key in res.data){
+                  tmp.push(res.data[key])
+                }
+                for(let i=0;i<on.length;++i){
+                  context.state.message.push({
+                    content: tmp[on[i]].name+' 上线',
+                    timestamp: time,
+                    color: '#0bbd87'
+                  })
+                }
+              }
+              else this.$Message.error(res.msg);
+            })
+          }
         })
       }, error => {
         Notification.info({

@@ -17,7 +17,7 @@
         <el-card style="height:700px;user-select:none">
           <h3 style="margin:10px">树结构图</h3>
           <el-scrollbar style="height:600px">
-            <div class="echart" id="treeChart" style="height:800px;width:800px"></div>
+            <div class="echart" id="treeChart" style="height:700px;width:700px"></div>
           </el-scrollbar>
         </el-card>
       </Col>

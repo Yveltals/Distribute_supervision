@@ -98,6 +98,7 @@
 </template>
 
 <script>    
+import date from '../utils/date'
   export default {
     name: 'List',
     data () {
@@ -165,6 +166,17 @@
         })
       },
       exportExcel() {
+        // this.$store.state.message=[]
+        // this.$store.state.message.push({
+        //   content: 'Machine 15 上线',
+        //   timestamp: date.dateFormat("YYYY-mm-dd HH:MM:SS",new Date()),
+        //   color: '#0bbd87'
+        // })
+        this.$store.state.message.push({
+          content: 'Machine 14 下线',
+          timestamp: date.dateFormat("YYYY-mm-dd HH:MM:SS",new Date()),
+        })
+        return
           const {export_json_to_excel} = require('../utils/Export2Excel')
           const tHeader = ['机器ID', '名称', '类型','IP','报告间隔', ]
           const filterVal = ['id', 'name', 'type','ip','interval', ]
